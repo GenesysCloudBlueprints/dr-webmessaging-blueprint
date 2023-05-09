@@ -4,6 +4,7 @@ terraform {
 
     workspaces {
       name = "prod-webmessenger"
+    }
   }
   required_providers {
 
