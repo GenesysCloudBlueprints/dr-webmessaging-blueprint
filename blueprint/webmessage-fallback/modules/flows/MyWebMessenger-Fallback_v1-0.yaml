@@ -1,0 +1,165 @@
+inboundShortMessage:
+  name: MyWebMessenger-Fallback
+  division: Home0349a372-0480-4879-b98e-8aace58b1bb7
+  startUpRef: "/inboundShortMessage/states/state[Initial State_10]"
+  defaultLanguage: en-us
+  supportedLanguages:
+    en-us:
+      defaultLanguageSkill:
+        noValue: true
+  settingsErrorHandling:
+    errorHandling:
+      disconnect:
+        none: true
+  states:
+    - state:
+        name: Initial State
+        refId: Initial State_10
+        variables:
+          - stringVariable:
+              name: State.CallbackMessage
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.CallbackName
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.CallbackPhoneNumber
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.EmergencyIntent
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - queueVariable:
+              name: State.TargetQueue
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+        actions:
+          - sendResponse:
+              name: Send Response
+              messageBody:
+                lit: "Welcome to Commonwealth Financial. We are currently experiencing an unexpected interruption of service. "
+          - callBotFlow:
+              name: Call Bot Flow
+              inputText:
+                exp: Message.Message.body
+              exitReason:
+                noValue: true
+              intent:
+                var: State.EmergencyIntent
+              botFlow:
+                MyEmergencyChatBot:
+                  ver_latestPublished:
+                    inputs:
+                      Slot.CallbackMessage:
+                        noValue: true
+                      Slot.CallBackName:
+                        noValue: true
+                      Slot.CallbackPhoneNumber:
+                        noValue: true
+                    outputs:
+                      Slot.CallbackMessage:
+                        var: State.CallbackMessage
+                      Slot.CallBackName:
+                        var: State.CallbackName
+                      Slot.CallbackPhoneNumber:
+                        var: State.CallbackPhoneNumber
+          - findQueue:
+              name: Find Queue
+              findName:
+                lit: mychat-general-help
+              findResult:
+                var: State.TargetQueue
+              outputs:
+                found:
+                  actions:
+                    - callData:
+                        name: Create Call Back Data Action
+                        timeout:
+                          lit:
+                            minutes: 1
+                        category:
+                          DR Callbacks:
+                            dataAction:
+                              "DR Create Callback ":
+                                inputs:
+                                  callbackUserName:
+                                    exp: State.CallbackName
+                                  callerIdName:
+                                    exp: "\"CommmonWealth Financial\""
+                                  callerName:
+                                    noValue: true
+                                  message:
+                                    exp: State.CallbackMessage
+                                  phone:
+                                    exp: State.CallbackPhoneNumber
+                                  queueId:
+                                    exp: State.TargetQueue.id
+                                failureOutputs:
+                                  errorCode:
+                                    noValue: true
+                                  status:
+                                    noValue: true
+                                  correlationId:
+                                    noValue: true
+                                  entityId:
+                                    noValue: true
+                                  entityName:
+                                    noValue: true
+                                  userMessage:
+                                    noValue: true
+                                  userParamsMessage:
+                                    noValue: true
+                                  userParams.key:
+                                    noValue: true
+                                  userParams.value:
+                                    noValue: true
+                                  details.errorCode:
+                                    noValue: true
+                                  details.fieldName:
+                                    noValue: true
+                                  details.entityId:
+                                    noValue: true
+                                  details.entityName:
+                                    noValue: true
+                        outputs:
+                          success:
+                            actions:
+                              - sendResponse:
+                                  name: Send Response
+                                  messageBody:
+                                    exp: "Trim(Append(\"Thank you. We will send a Callback to #: \", State.CallbackPhoneNumber))"
+                          failure:
+                            actions:
+                              - sendResponse:
+                                  name: Send Response
+                                  messageBody:
+                                    exp: "\"We are sorry. We had difficulty processing your request for a callback.  Please try to contact us at a later date.  We again apologize.\""
+                          timeout:
+                            actions:
+                              - sendResponse:
+                                  name: Send Response
+                                  messageBody:
+                                    exp: "\"We are sorry. We had difficulty processing your request for a callback.  Please try to contact us at a later date.  We again apologize.\""
+                notFound:
+                  actions:
+                    - sendResponse:
+                        name: Send Response
+                        messageBody:
+                          exp: "\"We are sorry. We had difficulty processing your request for a callback.  Please try to contact us at a later date.  We again apologize.\""
+                    - disconnect:
+                        name: Disconnect
+          - disconnect:
+              name: Disconnect

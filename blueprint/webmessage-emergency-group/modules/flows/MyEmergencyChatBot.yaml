@@ -1,0 +1,241 @@
+botFlow:
+  name: MyEmergencyChatBot
+  startUpRef: "/botFlow/bots/bot[MyEmergencyChatBot_10]"
+  defaultLanguage: en-us
+  supportedLanguages:
+    en-us:
+      none: true
+  variables:
+    - stringVariable:
+        name: Slot.CallbackMessage
+        initialValue:
+          noValue: true
+        isInput: true
+        isOutput: true
+    - stringVariable:
+        name: Slot.CallBackName
+        initialValue:
+          noValue: true
+        isInput: true
+        isOutput: true
+    - stringVariable:
+        name: Slot.CallbackPhoneNumber
+        initialValue:
+          noValue: true
+        isInput: true
+        isOutput: true
+  settingsActionDefaults:
+    askForIntent:
+      voiceEndOfInputTimeout:
+        lit:
+          seconds: 1
+    askForBoolean:
+      voiceEndOfInputTimeout:
+        lit:
+          seconds: 1
+    askForSlot:
+      voiceEndOfInputTimeout:
+        lit:
+          seconds: 1
+    loopAnythingElse:
+      voiceEndOfInputTimeout:
+        lit:
+          seconds: 1
+  settingsErrorHandling:
+    errorHandling:
+      exit:
+        none: true
+    enableAgentEscalation:
+      lit: true
+    errorEventHandover:
+      exp: "MakeCommunication(\n  \"Sorry, an error occurred. One moment, please, while I put you through to someone who can help.\")"
+    agentEscalationConfirmation:
+      exp: "MakeCommunication(\n  \"You want to speak to an advisor. Is that correct?\")"
+    agentEscalationHandover:
+      exp: "MakeCommunication(\n  \"One moment, please, and I will put you through to someone.\")"
+    recognitionFailureEventHandover:
+      exp: "MakeCommunication(\n  \"Sorry, I'm having trouble understanding you. One moment, please, while I put you through to someone who can help.\")"
+    recognitionFailureEventHandling:
+      exit:
+        none: true
+  settingsPrompts:
+    ensureAudioInPrompts: false
+    promptMediaToValidate:
+      - mediaType: audio
+      - mediaType: tts
+  settingsBotFlow:
+    intentSettings:
+      - intent:
+          confirmation:
+            exp: "MakeCommunication(\n  \"I think you want to callback, is that correct?\")"
+          name: callback
+  settingsUserInput:
+    enableBargeIn:
+      lit: true
+    enableAutomaticQuickReplies:
+      lit: true
+    noMatchesMax:
+      lit: 3
+    noInputsMax:
+      lit: 3
+    noInputsTimeout:
+      lit:
+        seconds: 7
+    confirmationRejectionsMax:
+      lit: 3
+    collectionLowConfidenceThreshold:
+      lit: 20
+    collectionHighConfidenceThreshold:
+      lit: 70
+    confirmationLowConfidenceThreshold:
+      lit: 40
+    noMatchApology:
+      exp: "MakeCommunication(\n  \"Sorry.\")"
+    noInputApology:
+      exp: "MakeCommunication(\n  \"Sorry, I didn't hear you.\")"
+    noToConfirmationApology:
+      exp: "MakeCommunication(\n  \"My mistake.\")"
+    confirmationNoMatchApology:
+      exp: "MakeCommunication(\n  \"Sorry, please say yes or no.\")"
+    confirmationNoInputApology:
+      exp: "MakeCommunication(\n  \"Sorry, I didn't hear you.  Please say yes or no.\")"
+  settingsKnowledge:
+    none: true
+  bots:
+    - bot:
+        name: MyEmergencyChatBot
+        refId: MyEmergencyChatBot_10
+        actions:
+          - askForBoolean:
+              name: Ask for Yes / No
+              question:
+                exp: "MakeCommunication(\n  \"We are currently unable to handle your inquiry.  Would you like one of our agent's to call you back when are systems are back online?\")"
+              noInput:
+                exp: "MakeCommunication(\n  \"Say \\\"yes\\\" if you want to proceed or \\\"no\\\" if you don't.\")"
+              noMatch:
+                exp: "MakeCommunication(\n  \"Please say \\\"yes\\\" or \\\"no\\\".  Do you want to proceed?\")"
+              voiceEndOfInputTimeout:
+                noValue: true
+              outputs:
+                "yes":
+                  actions:
+                    - askForSlot:
+                        name: Ask for Slot
+                        slot:
+                          name: CallBackName
+                        question:
+                          exp: "MakeCommunication(\n  \"What is your \", \n  \"name please\", \n  \"?\")"
+                        customValidation:
+                          noValue: true
+                        confirmationMode:
+                          lit: never
+                        noInput:
+                          exp: "MakeCommunication(\n  \"Please say or enter the\", \n  \"your name\")"
+                        noMatch:
+                          exp: "MakeCommunication(\n  \"Please give me your name please\", \n  \"\")"
+                        voiceEndOfInputTimeout:
+                          noValue: true
+                        outputs:
+                          maxNoInputs:
+                            enabled: false
+                    - askForSlot:
+                        name: Ask for Slot
+                        slot:
+                          name: CallbackPhoneNumber
+                        question:
+                          exp: "MakeCommunication(\n  \"What is the\", \n  \"phone number (xxx)xxx-xxxx you want the callback to go to\", \n  \"?\")"
+                        customValidation:
+                          noValue: true
+                        confirmationMode:
+                          lit: never
+                        noInput:
+                          exp: "MakeCommunication(\n  \"Please say or enter the\", \n  \"callback phone number (xxx)xxx-xxxx you want the callback to go to.\")"
+                        noMatch:
+                          exp: "MakeCommunication(\n  \"Please give me the\", \n  \"callback phone number (xxx)xxx-xxxx you want to send your callback to.\")"
+                        voiceEndOfInputTimeout:
+                          noValue: true
+                        outputs:
+                          maxNoInputs:
+                            enabled: false
+                "no":
+                  actions:
+                    - communicate:
+                        name: Communicate
+                        communication:
+                          exp: "MakeCommunication(\n  \"Great and I understand.  Sorry again for the inconvenience.  Please check back shortly to see if we are available again\")"
+                    - disconnect:
+                        name: Disconnect
+                maxNoInputs:
+                  enabled: false
+          - askForSlot:
+              name: Ask for Slot
+              slot:
+                name: CallbackMessage
+              question:
+                exp: "MakeCommunication(\n  \"What is the\", \n  \"message you want to leave to an agent\", \n  \"?\")"
+              customValidation:
+                noValue: true
+              confirmationMode:
+                lit: never
+              noInput:
+                exp: "MakeCommunication(\n  \"Please say or enter the\", \n  \"the message you would like to leave for the agent\")"
+              noMatch:
+                exp: "MakeCommunication(\n  \"Please give me the\", \n  \"message you would like to leave for an agent\")"
+              voiceEndOfInputTimeout:
+                noValue: true
+              outputs:
+                maxNoInputs:
+                  enabled: false
+          - exitBotFlow:
+              name: Exit Bot Flow
+  settingsNaturalLanguageUnderstanding:
+    nluDomainVersion:
+      intents:
+        - utterances:
+            - segments:
+                - text: call me
+            - segments:
+                - text: "call me at "
+                - text: "(920)265-1560"
+                  entity:
+                    name: CallbackPhoneNumber
+            - segments:
+                - text: "phone me at "
+                - text: "(920)265-1560"
+                  entity:
+                    name: CallbackPhoneNumber
+            - segments:
+                - text: "call back at "
+                - text: "(920)265-1560"
+                  entity:
+                    name: CallbackPhoneNumber
+            - segments:
+                - text: "schedule a call "
+                - text: "(920)265-1560"
+                  entity:
+                    name: CallbackPhoneNumber
+            - segments:
+                - text: "call me back at "
+                - text: "(920-265-1560)"
+                  entity:
+                    name: CallbackPhoneNumber
+          entityNameReferences:
+            - CallbackPhoneNumber
+          name: callback
+      entities:
+        - name: CallbackMessage
+          type: "builtin:any"
+        - name: CallBackName
+          type: "builtin:any"
+        - name: CallbackPhoneNumber
+          type: PhoneNumberType
+      entityTypes:
+        - name: PhoneNumberType
+          description: The description of the Entity Type "CallBackPhoneNumberType"
+          mechanism:
+            type: Regex
+            restricted: true
+            items:
+              - value: "^\\(\\d{3}\\)\\s?\\d{3}-\\d{4}$"
+                synonyms: []
+      language: en-us

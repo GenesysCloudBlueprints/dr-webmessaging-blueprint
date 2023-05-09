@@ -1,0 +1,348 @@
+inboundShortMessage:
+  name: "{{flow_name}}"
+  description: Message Based Chat Flow
+  startUpRef: "/inboundShortMessage/states/state[Initial State_11]"
+  defaultLanguage: "{{default_language}}"
+  supportedLanguages:
+    en-us:
+      defaultLanguageSkill:
+        noValue: true
+  settingsErrorHandling:
+    errorHandling:
+      disconnect:
+        none: true
+  states:
+    - state:
+        name: Initial State
+        refId: Initial State_11
+        variables:
+          - stringVariable:
+              name: State.CallbackMessage
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.CallbackName
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.CallbackPhoneNumber
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.ChatFirstName
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.CustomerFirstName
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.CustomerId
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.CustomerLastName
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.EmergencyIntent
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.OrderNumber
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - queueVariable:
+              name: State.TargetQueue
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+          - stringVariable:
+              name: State.TheIntent
+              initialValue:
+                noValue: true
+              isInput: false
+              isOutput: false
+        actions:
+          - evaluateScheduleGroup:
+              name: Evaluate Schedule Group
+              inServiceSchedules:
+                noValue: true
+              evaluate:
+                now: true
+              scheduleGroup:
+                exp: ToScheduleGroup(NOT_SET)
+              emergencyGroup:
+                exp: FindEmergencyGroup("My Organization Evacuation Emergency Group")
+              outputs:
+                emergency:
+                  actions:
+                    - sendResponse:
+                        name: Send Response
+                        messageBody:
+                          lit: "Welcome to Commonwealth Financial. We are currently experiencing an unexpected interruption of service. "
+                    - callBotFlow:
+                        name: Call Bot Flow
+                        inputText:
+                          exp: Message.Message.body
+                        exitReason:
+                          noValue: true
+                        intent:
+                          var: State.EmergencyIntent
+                        botFlow:
+                          MyEmergencyChatBot:
+                            ver_latestPublished:
+                              inputs:
+                                Slot.CallbackMessage:
+                                  noValue: true
+                                Slot.CallbackPhoneNumber:
+                                  noValue: true
+                                Slot.CallBackName:
+                                  noValue: true
+                              outputs:
+                                Slot.CallbackMessage:
+                                  var: State.CallbackMessage
+                                Slot.CallbackPhoneNumber:
+                                  var: State.CallbackPhoneNumber
+                                Slot.CallBackName:
+                                  var: State.CallbackName
+                    - findQueue:
+                        name: Find Queue
+                        findName:
+                          lit: mychat-general-help
+                        findResult:
+                          var: State.TargetQueue
+                        outputs:
+                          found:
+                            actions:
+                              - callData:
+                                  name: Create Call Back Data Action
+                                  timeout:
+                                    lit:
+                                      minutes: 1
+                                  category:
+                                    DR Callbacks:
+                                      dataAction:
+                                        "DR Create Callback ":
+                                          inputs:
+                                            callbackUserName:
+                                              exp: State.CallbackName
+                                            callerIdName:
+                                              exp: "\"CommmonWealth Financial\""
+                                            callerName:
+                                              noValue: true
+                                            message:
+                                              exp: State.CallbackMessage
+                                            phone:
+                                              exp: State.CallbackPhoneNumber
+                                            queueId:
+                                              exp: State.TargetQueue.id
+                                          failureOutputs:
+                                            errorCode:
+                                              noValue: true
+                                            status:
+                                              noValue: true
+                                            correlationId:
+                                              noValue: true
+                                            entityId:
+                                              noValue: true
+                                            entityName:
+                                              noValue: true
+                                            userMessage:
+                                              noValue: true
+                                            userParamsMessage:
+                                              noValue: true
+                                            userParams.key:
+                                              noValue: true
+                                            userParams.value:
+                                              noValue: true
+                                            details.errorCode:
+                                              noValue: true
+                                            details.fieldName:
+                                              noValue: true
+                                            details.entityId:
+                                              noValue: true
+                                            details.entityName:
+                                              noValue: true
+                                  outputs:
+                                    success:
+                                      actions:
+                                        - sendResponse:
+                                            name: Send Response
+                                            messageBody:
+                                              exp: "Trim(Append(\"Thank you. We will send a Callback to #: \", State.CallbackPhoneNumber))"
+                                    failure:
+                                      actions:
+                                        - sendResponse:
+                                            name: Send Response
+                                            messageBody:
+                                              exp: "\"We are sorry. We had difficulty processing your request for a callback.  Please try to contact us at a later date.  We again apologize.\""
+                                    timeout:
+                                      actions:
+                                        - sendResponse:
+                                            name: Send Response
+                                            messageBody:
+                                              exp: "\"We are sorry. We had difficulty processing your request for a callback.  Please try to contact us at a later date.  We again apologize.\""
+                          notFound:
+                            actions:
+                              - sendResponse:
+                                  name: Send Response
+                                  messageBody:
+                                    exp: "\"We are sorry. We had difficulty processing your request for a callback.  Please try to contact us at a later date.  We again apologize.\""
+                              - disconnect:
+                                  name: Disconnect
+                    - disconnect:
+                        name: Disconnect
+          - callBotFlow:
+              name: Call Bot Flow
+              inputText:
+                noValue: true
+              exitReason:
+                noValue: true
+              intent:
+                var: State.TheIntent
+              botFlow:
+                MyChatBot:
+                  ver_latestPublished:
+                    inputs:
+                      Slot.OrderNumberType:
+                        noValue: true
+                    outputs:
+                      Slot.OrderNumberType:
+                        var: State.OrderNumber
+          - getParticipantData:
+              name: Get Participant Data
+              attributes:
+                - attribute:
+                    name:
+                      lit: Context.CustomerFirstName
+                    variable: State.ChatFirstName
+          - switch:
+              name: Switch
+              evaluate:
+                firstTrue:
+                  default:
+                    actions:
+                      - transferToAcd:
+                          name: Transfer to General Help
+                          targetQueue:
+                            lit:
+                              name: mychat-general-help
+                          priority:
+                            lit: 0
+                          preferredAgents:
+                            noValue: true
+                          languageSkill:
+                            noValue: true
+                  cases:
+                    - case:
+                        value:
+                          exp: State.TheIntent=="Life Insurance"
+                        actions:
+                          - transferToAcd:
+                              name: Transfer to Life Insurance
+                              targetQueue:
+                                lit:
+                                  name: mychat-life-insurance
+                              priority:
+                                lit: 0
+                              preferredAgents:
+                                noValue: true
+                              languageSkill:
+                                noValue: true
+                    - case:
+                        value:
+                          exp: State.TheIntent=="Annuity"
+                        actions:
+                          - transferToAcd:
+                              name: Transfer to Annuity
+                              targetQueue:
+                                lit:
+                                  name: mychat-life-annuity
+                              priority:
+                                lit: 0
+                              preferredAgents:
+                                noValue: true
+                              languageSkill:
+                                noValue: true
+                    - case:
+                        value:
+                          exp: State.TheIntent=="Mutual Funds"
+                        actions:
+                          - transferToAcd:
+                              name: Transfer to Mutual Funds
+                              targetQueue:
+                                lit:
+                                  name: mychat-mutual-funds
+                              priority:
+                                lit: 0
+                              preferredAgents:
+                                noValue: true
+                              languageSkill:
+                                noValue: true
+                    - case:
+                        value:
+                          exp: State.TheIntent=="Brokerage"
+                        actions:
+                          - transferToAcd:
+                              name: Transfer to Brokerage
+                              targetQueue:
+                                lit:
+                                  name: mychat-brokerage
+                              priority:
+                                lit: 0
+                              preferredAgents:
+                                noValue: true
+                              languageSkill:
+                                noValue: true
+                    - case:
+                        value:
+                          exp: State.TheIntent=="Health Insurance"
+                        actions:
+                          - transferToAcd:
+                              name: Transfer to Health Insurance Queue
+                              targetQueue:
+                                lit:
+                                  name: mychat-health-insurance
+                              priority:
+                                lit: 0
+                              preferredAgents:
+                                noValue: true
+                              languageSkill:
+                                noValue: true
+                    - case:
+                        value:
+                          exp: State.TheIntent=="General Help"
+                        actions:
+                          - transferToAcd:
+                              name: Transfer to General Help
+                              targetQueue:
+                                lit:
+                                  name: mychat-general-help
+                              priority:
+                                lit: 0
+                              preferredAgents:
+                                noValue: true
+                              languageSkill:
+                                noValue: true
+          - disconnect:
+              name: Disconnect

@@ -1,0 +1,33 @@
+name: Genesys Cloud Failure Webmessenger Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy-webmessenger-to-prod:
+    runs-on: ubuntu-latest
+    env:
+      TF_WORKSPACE: "prod-webmessenger"
+    steps:
+      - uses: actions/checkout@v2   
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_IVR_TOKEN }}
+      - run: |
+          cd blueprint/terraform-ivr
+          terraform init 
+          terraform apply --auto-approve
+  deploy-webmessenger-to-fallback:
+    runs-on: ubuntu-latest
+    needs: deploy-webmessenger-to-prod
+    env:
+      TF_WORKSPACE: "fallback_webmessenger"
+    steps:
+      - uses: actions/checkout@v2   
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_IVR_TOKEN }}
+      - run: |
+          cd blueprint/terraform-warm-ivr
+          terraform init 
+          terraform apply --auto-approve  
