@@ -4,7 +4,7 @@
 */
 module "my_message_queues" {
   source                   = "git::https://github.com/GenesysCloudDevOps/genesys-cloud-queues-demo.git?ref=main"
-  classifier_queue_names   = ["mychat-life-insurance","mychat-life-annuity","mychat-mutual-funds","mychat-brokerage","mychat-health-insurance","mychat-general-help","mychat-cancellations", "mychat-general-support"]
+  classifier_queue_names   = ["mychat-life-insurance","mychat-life-annuity","mychat-mutual-funds","mychat-brokerage","mychat-health-insurance","mychat-general-help","mychat-cancellations"]
   classifier_queue_members = []
 }
 

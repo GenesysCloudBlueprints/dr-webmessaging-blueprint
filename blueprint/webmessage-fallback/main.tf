@@ -4,7 +4,7 @@
 */
 module "my_message_queues" {
   source                   = "git::https://github.com/GenesysCloudDevOps/genesys-cloud-queues-demo.git?ref=main"
-  classifier_queue_names   = ["mychat-life-insurance","mychat-life-annuity","mychat-mutual-funds","mychat-brokerage","mychat-health-insurance","mychat-general-help","mychat-cancellations", "mychat-general-support"]
+  classifier_queue_names   = ["mychat-life-insurance","mychat-life-annuity","mychat-mutual-funds","mychat-brokerage","mychat-health-insurance","mychat-general-help","mychat-cancellations"]
   classifier_queue_members = []
 }
 
@@ -24,16 +24,6 @@ module "webmessaging_deploy" {
   prefix      = var.prefix
   flowId      = module.my_chat_flow.flow_id
 }
-
-/*Generates an html page containing the webmessaging widget*/
-module "webmessaging_widget_page" {
-  depends_on                             = [module.webmessaging_deploy]
-  source                                 = "./modules/generate_webmessaging_page"
-  genesyscloud_scripting_env             = var.genesysCloudScriptEnv
-  genesyscloud_scripting_url             = var.genesysCloudScriptUrl
-  genesyscloud_webmessaging_deploymentid = module.webmessaging_deploy.webmessenger_deploymentid
-}
-
 
 module "genesys_cloud_public_api_integration" {
     source = "git::https://github.com/GenesysCloudDevOps/public-api-data-actions-integration-module.git?ref=main"
