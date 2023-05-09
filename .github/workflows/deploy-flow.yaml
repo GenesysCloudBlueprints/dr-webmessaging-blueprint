@@ -1,4 +1,4 @@
-name: Genesys Cloud Failure Webmessenger Deploy
+name: Genesys Cloud DR Webmessenger Deploy
 on:
   push:
     branches: [main]
@@ -14,7 +14,7 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_WM_TOKEN }}
       - run: |
-          cd blueprint/terraform-ivr
+          cd blueprint/webmessage-emergency-group
           terraform init 
           terraform apply --auto-approve
   deploy-webmessenger-to-fallback:
@@ -28,6 +28,6 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_WM_TOKEN }}
       - run: |
-          cd blueprint/terraform-warm-ivr
+          cd blueprint/webmessage-fallback
           terraform init 
           terraform apply --auto-approve  
