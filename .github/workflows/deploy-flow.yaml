@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2   
       - uses: hashicorp/setup-terraform@v2
         with:
-          cli_config_credentials_token: ${{ secrets.TF_IVR_TOKEN }}
+          cli_config_credentials_token: ${{ secrets.TF_WM_TOKEN }}
       - run: |
           cd blueprint/terraform-ivr
           terraform init 
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v2   
       - uses: hashicorp/setup-terraform@v2
         with:
-          cli_config_credentials_token: ${{ secrets.TF_IVR_TOKEN }}
+          cli_config_credentials_token: ${{ secrets.TF_WM_TOKEN }}
       - run: |
           cd blueprint/terraform-warm-ivr
           terraform init 
