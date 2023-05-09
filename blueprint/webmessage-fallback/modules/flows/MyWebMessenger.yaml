@@ -1,6 +1,5 @@
 inboundShortMessage:
   name: MyWebMessenger-Fallback
-  division: Home0349a372-0480-4879-b98e-8aace58b1bb7
   startUpRef: "/inboundShortMessage/states/state[Initial State_10]"
   defaultLanguage: en-us
   supportedLanguages:
