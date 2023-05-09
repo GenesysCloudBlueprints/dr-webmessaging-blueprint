@@ -25,14 +25,6 @@ module "webmessaging_deploy" {
   flowId      = module.my_chat_flow.flow_id
 }
 
-/*Generates an html page containing the webmessaging widget*/
-module "webmessaging_widget_page" {
-  depends_on                             = [module.webmessaging_deploy]
-  source                                 = "./modules/generate_webmessaging_page"
-  genesyscloud_scripting_env             = var.genesysCloudScriptEnv
-  genesyscloud_scripting_url             = var.genesysCloudScriptUrl
-  genesyscloud_webmessaging_deploymentid = module.webmessaging_deploy.webmessenger_deploymentid
-}
 
 resource "genesyscloud_architect_emergencygroup" "site_evac_emergency_group" {
   name        = "My Organization Evacuation Emergency Group"
