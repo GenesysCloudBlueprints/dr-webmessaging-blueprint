@@ -1,4 +1,11 @@
 terraform {
+  cloud {
+    organization = "thoughtmechanix"
+
+    workspaces {
+      name = "fallback_webmessenger"
+    }
+  }
   required_providers {
     archive = {
       version = ">= 2.0"

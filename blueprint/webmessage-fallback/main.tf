@@ -34,10 +34,6 @@ module "webmessaging_widget_page" {
   genesyscloud_webmessaging_deploymentid = module.webmessaging_deploy.webmessenger_deploymentid
 }
 
-resource "genesyscloud_architect_emergencygroup" "site_evac_emergency_group" {
-  name        = "My Organization Evacuation Emergency Group"
-  description = "Emergency Group to activate emergency ivr"
-}
 
 module "genesys_cloud_public_api_integration" {
     source = "git::https://github.com/GenesysCloudDevOps/public-api-data-actions-integration-module.git?ref=main"
