@@ -1,8 +1,8 @@
 /*
    Creates an emergency group users can be assigned to
 */   
-resource "genesyscloud_group" "emergency_group" {
-  name          = "Emergency Group"
+resource "genesyscloud_group" "dr-emergency_group" {
+  name          = "DR WebMessaging Emergency Group"
   description   = "Emergency Group for supervisors to answer calls in an emergency"
   type          = "official"
   visibility    = "public"
