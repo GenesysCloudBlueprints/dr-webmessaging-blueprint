@@ -1,7 +1,7 @@
 /*
    Creates an emergency group users can be assigned to
 */   
-resource "genesyscloud_group" "dr-emergency_group" {
+resource "genesyscloud_group" "dr_emergency_group" {
   name          = "DR WebMessaging Emergency Group"
   description   = "Emergency Group for supervisors to answer calls in an emergency"
   type          = "official"
@@ -31,7 +31,7 @@ resource "genesyscloud_routing_queue" "mychat-general-help" {
     wait_seconds = 300
   }
 
-   groups= [genesyscloud_group.emergency_group.id]
+   groups= [genesyscloud_group.dr_emergency_group.id]
 }
 
 /*   
