@@ -8,17 +8,6 @@ variable "environment" {
   description = "Name of the environment, e.g., dev, test, stable, staging, uat, prod etc."
 }
 
-variable "genesysCloudScriptEnv" {
-  type        = string
-  description = "Short hand code for AWS Genesys Cloud Web Messaging scripting region (e.g. mypurecloud,usw2, cac1)"
-}
-
-variable "genesysCloudScriptUrl" {
-  type        = string
-  description = "Genesys Cloud Apps URL.  See https://developer.genesys.cloud/api/rest/ for a complete list of apps URLs."
-}
-
-
 variable "integration_creds_client_id" {
   type        = string
   description = "Client credential id for the Callback data action"

@@ -1,5 +1,5 @@
 ---
-title: Build resiliency in your digital channels with Genesys Cloud emergency groups and callbacks
+title: Build resiliency in your digital channels with Genesys Cloud web messaging, emergency groups and callbacks
 author: john.carnell
 indextype: blueprint
 icon: blueprint
@@ -9,10 +9,7 @@ summary: |
   This Genesys Cloud Developer Blueprint describes how to deploy a resilient digital channel using two different Genesys Cloud organizations and GitHub Actions.
 ---
 :::{"alert":"primary","title":"About Genesys Cloud Blueprints","autoCollapse":false}
-Genesys Cloud blueprints were built to help you jump-start building an application or integrating with a third-party partner. 
-Blueprints are meant to outline how to build and deploy your solutions, not a production-ready turn-key solution.
- 
-For more details on Genesys Cloud blueprint support and practices, 
+Genesys Cloud Blueprints were built to help you jump-start building an application or integrating with a third-party partner. Blueprints are meant to outline how to build and deploy your solutions, not a production-ready turn-key solution. For more details on Genesys Cloud blueprint support and practices, 
 see our Genesys Cloud blueprint [FAQ](https://developer.genesys.cloud/blueprints/faq) sheet.
 :::
 
@@ -25,29 +22,29 @@ This blueprint also demonstrates how to:
 
 ## Scenario
 
-An organization is interested in developing a resilient digital that can be used in two different scenarios:
+An organization is interested in developing a resilient digital channel that can be used in two different resiliency scenarios:
 
 1. **Genesys Cloud is available, but your organization cannot process chats within your contact center.** 
 2. **Genesys Cloud availability is impacted in one region, but you want new web messaging to "failover" to a chatbot running in a different Genesys Cloud region that can capture a callback so that an agent can contact you when the system becomes available.
 
 In the first scenario, the team wants to implement a Genesys Cloud web messaging chatbot that collects information from a customer and then creates a Genesys Cloud callback. When the emergency has been resolved, ALL agents can immediately process customer callbacks.  
 
-In the second scenario, the implementation team wants a standby web messaging chatbot to be in a different Genesys Cloud region. They want any new web messaging conversations to be directed to a standby Genesys Cloud organization, with a small subset of agents (e.g., supervisors) able to take chat requests in the standby region. Because of the variability and volatility of the situation, all customer web messaging chats should be given the option to create a callback and have an agent call them back. 
+In the second scenario, the implementation team wants a standby web messaging chatbot to be in a different Genesys Cloud region. They want any new web messaging conversations to be directed to the standby Genesys Cloud organization, with a small subset of agents (e.g., supervisors) able to take chat requests. Because of the variability and volatility of the situation, all customer web messaging chats should be given the option to create a callback and have an agent call them back. 
 
 
 ## Solution 1 - Web Messenger Failover within a single Genesys Cloud organization
 
-The first solution demonstrates how Genesys Cloud web messaging architect flow, Genesys Cloud chatbots, emergency groups, and callbacks can be used to implement a resilient web messaging system. All components and configurations are managed through CX as Code and deployed using the Terraform CLI or GitHub actions as part of CI/CD pipelines. This is captured in the following illustration:
+The first solution demonstrates how Genesys Cloud web messaging architect flow, Genesys Cloud chatbots, emergency groups, and callbacks can be used to implement resilient web messaging solutions. All components and configurations are managed through CX as Code and deployed using the Terraform CLI or GitHub actions as part of CI/CD pipelines. This is captured in the following illustration:
 
 ![Fallback Web Messenger Chatbot](/blueprint/images/webmessenger_fallback.png "Build a fallback Web Messenger chat bot using emergency groups and callbacks")
 
 The following actions are taken in this scenario:
 
-1. When a customer initiates a chat with the organization, they are directed to the Genesys Cloud web messenger chatbot in their primary Genesys Cloud organization. The chatbot checks whether the `My Organization Evacuation Emergency Group` is active. When the emergency group is not active, users will be directed to their chatbot menu with six destinations. The emergency group check is performed as a startup task before the customer is presented with options.
+1. When a customer initiates a chat with the organization, they are directed to the Genesys Cloud web messenger chatbot in their primary Genesys Cloud organization. The chatbot checks whether the `My Organization Evacuation Emergency Group` is active. When the emergency group is not active, users will be directed to their chatbot menu and routed to one of six queue destinations. The emergency group check is performed as a startup task before the customer is presented with options.
 
 2. A Genesys Cloud supervisor activates the Emergency Group in Genesys Cloud in an emergency.
 
-3. In the chatbot the customer is now notified if an emergency group is active when they initiate a web messaging chat. The user will be directed to an alternative chatbot that will allow them to create a callback where an agent can contact them later. This callback is associated with the `mychat-general-help` support queue. 
+3. In the chatbot, if the emergency group is active, the customer will be notified of the emergency when they initiate a web messaging chat. The user will be directed to an alternative chatbot that will allow them to create a Genesys Cloud callback where an agent can contact them later. This callback is associated with the `mychat-general-help` support queue. 
  
 4. A callback captures the user's contact information (e.g. name, phone number) the user initially used to call the organization.
 
@@ -212,7 +209,7 @@ GitHub Actions require a Terraform Cloud user token so the Terraform CLI can aut
 
 ### Define the GitHub Actions configuration
 
-GitHub Actions are the mechanism in which CI/CD pipelines are defined. Actions on GitHub usually consist of two parts:
+GitHub Actions are the mechanism by which CI/CD pipelines are defined. Actions on GitHub usually consist of two parts:
 
 1.  **One or more workflow files** - The Github Action Workflow files define the sequence of steps in the CI/CD pipeline. Execution of the workflow triggers these steps. This blueprint contains a single workflow file called **deploy-flow.yaml** in the **.github/workflows** directory. This file contains instructions on how to install Terraform, deploy the Architect flow, and deploy the Genesys Cloud objects to the `prod` and `prod-webmessenger-fallback` organizations.
 
