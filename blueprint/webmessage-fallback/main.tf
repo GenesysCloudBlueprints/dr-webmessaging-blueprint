@@ -6,7 +6,6 @@ resource "genesyscloud_group" "emergency_group" {
   description   = "Emergency Group for supervisors to answer calls in an emergency"
   type          = "official"
   visibility    = "public"
-  member_ids= [data.genesyscloud_user.admin_user.id ]
 }
 /*
    Creates the queues used within the flow
