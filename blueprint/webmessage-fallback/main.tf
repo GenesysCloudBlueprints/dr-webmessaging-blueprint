@@ -1,11 +1,38 @@
-
+/*
+   Creates an emergency group users can be assigned to
+*/   
+resource "genesyscloud_group" "emergency_group" {
+  name          = "Emergency Group"
+  description   = "Emergency Group for supervisors to answer calls in an emergency"
+  type          = "official"
+  visibility    = "public"
+  member_ids= [data.genesyscloud_user.admin_user.id ]
+}
 /*
    Creates the queues used within the flow
 */
-module "my_message_queues" {
-  source                   = "git::https://github.com/GenesysCloudDevOps/genesys-cloud-queues-demo.git?ref=main"
-  classifier_queue_names   = ["mychat-life-insurance","mychat-life-annuity","mychat-mutual-funds","mychat-brokerage","mychat-health-insurance","mychat-general-help","mychat-cancellations"]
-  classifier_queue_members = []
+resource "genesyscloud_routing_queue" "mychat-general-help" {
+  name                              = "mychat-general-help"
+  description                       = "General Help Queue"
+  acw_wrapup_prompt                 = "MANDATORY_TIMEOUT"
+  acw_timeout_ms                    = 300000
+  skill_evaluation_method           = "BEST"
+  auto_answer_only                  = true
+  enable_transcription              = true
+  enable_manual_assignment          = true
+
+  media_settings_call {
+    alerting_timeout_sec      = 30
+    service_level_percentage  = 0.7
+    service_level_duration_ms = 10000
+  }
+  routing_rules {
+    operator     = "MEETS_THRESHOLD"
+    threshold    = 9
+    wait_seconds = 300
+  }
+
+   groups= [genesyscloud_group.emergency_group.id]
 }
 
 /*   

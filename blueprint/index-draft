@@ -6,7 +6,7 @@ icon: blueprint
 image: images/blueprintcover.png
 category: 5
 summary: |
-  This Genesys Cloud Developer Blueprint describes how to deploy resilient a digital channel using two different Genesys Cloud organizations and GitHub Actions.
+  This Genesys Cloud Developer Blueprint describes how to deploy a resilient digital channel using two different Genesys Cloud organizations and GitHub Actions.
 ---
 :::{"alert":"primary","title":"About Genesys Cloud Blueprints","autoCollapse":false}
 Genesys Cloud blueprints were built to help you jump-start building an application or integrating with a third-party partner. 
@@ -16,7 +16,7 @@ For more details on Genesys Cloud blueprint support and practices,
 see our Genesys Cloud blueprint [FAQ](https://developer.genesys.cloud/blueprints/faq) sheet.
 :::
 
-This Genesys Cloud Developer Blueprint describes how to deploy resilient a digital channel using two different Genesys Cloud organizations and GitHub Actions.
+This Genesys Cloud Developer Blueprint describes how to deploy a resilient digital channel using Genesys Cloud web messaging with two different Genesys Cloud organizations and GitHub Actions.
 
 This blueprint also demonstrates how to:
 
@@ -28,28 +28,28 @@ This blueprint also demonstrates how to:
 An organization is interested in developing a resilient digital that can be used in two different scenarios:
 
 1. **Genesys Cloud is available, but your organization cannot process chats within your contact center.** 
-2. **Genesys Cloud availability is impacted in one region, but you want new web messaging to "fail over" chats to a chat bot that can capture a callback where a agent can contact the user in the future.
+2. **Genesys Cloud availability is impacted in one region, but you want new web messaging to "failover" to a chatbot running in a different Genesys Cloud region that can capture a callback so that an agent can contact you when the system becomes available.
 
-The first scenario, the team wants to implement a Genesys Cloud web messaging chatbot collects information from a customer and then creates a Genesys Cloud callback. When the emergency has been resolved, ALL agents can immediately process customer callbacks.  
+In the first scenario, the team wants to implement a Genesys Cloud web messaging chatbot that collects information from a customer and then creates a Genesys Cloud callback. When the emergency has been resolved, ALL agents can immediately process customer callbacks.  
 
-The second scenario, the implementation team wants a standby web messaging chatbot to be in a different Genesys Cloud region. They want any new web messaging conversations to be directed to the on the standby Genesys Cloud organization, with a small subset of agents (e.g., supervisors) to be able to take chat requests in the standby region. Because of the variability and volatility of the situation, all customer web messaging chats should be give the option create a callback and have an agent call them back. 
+In the second scenario, the implementation team wants a standby web messaging chatbot to be in a different Genesys Cloud region. They want any new web messaging conversations to be directed to a standby Genesys Cloud organization, with a small subset of agents (e.g., supervisors) able to take chat requests in the standby region. Because of the variability and volatility of the situation, all customer web messaging chats should be given the option to create a callback and have an agent call them back. 
 
 
 ## Solution 1 - Web Messenger Failover within a single Genesys Cloud organization
 
-The first solution demonstrates how Genesys Cloud web messaging architect flow, Genesys Cloud chatbots, emergency groups, and callbacks can be used to implement a resilient web messaging system. All components and configurations are managed through CX as Code and deployed using the Terraform CLI or GitHub actions as part of CI/CD pipelines. The following is an illustration:
+The first solution demonstrates how Genesys Cloud web messaging architect flow, Genesys Cloud chatbots, emergency groups, and callbacks can be used to implement a resilient web messaging system. All components and configurations are managed through CX as Code and deployed using the Terraform CLI or GitHub actions as part of CI/CD pipelines. This is captured in the following illustration:
 
 ![Fallback Web Messenger Chatbot](/blueprint/images/webmessenger_fallback.png "Build a fallback Web Messenger chat bot using emergency groups and callbacks")
 
 The following actions are taken in this scenario:
 
-1. When a customer initiates a chat with the organization, they are directed to Genesys Cloud web messenger chatbot. The chatbot checks whether the `My Organization Evacuation Emergency Group` is active. Users who do not have an active emergency group are directed to their chatbot menu with six destinations. The emergency group check is performed as a startup task before the customer is presented with options.
+1. When a customer initiates a chat with the organization, they are directed to the Genesys Cloud web messenger chatbot in their primary Genesys Cloud organization. The chatbot checks whether the `My Organization Evacuation Emergency Group` is active. When the emergency group is not active, users will be directed to their chatbot menu with six destinations. The emergency group check is performed as a startup task before the customer is presented with options.
 
-2. A supervisor activates the Emergency Group in Genesys Cloud in an emergency.
+2. A Genesys Cloud supervisor activates the Emergency Group in Genesys Cloud in an emergency.
 
-3. In the chatbot the customer is now notified if an emergency group is active when they initiate a web messaging chat. The user will be directed to a an alternative chatbot that will allow them to create a callback where an agent can contact them later. This callback isassociated with the `General Help` support queue. 
+3. In the chatbot the customer is now notified if an emergency group is active when they initiate a web messaging chat. The user will be directed to an alternative chatbot that will allow them to create a callback where an agent can contact them later. This callback is associated with the `mychat-general-help` support queue. 
  
-4. A callback captures the phone number the user initially used to call the organization.
+4. A callback captures the user's contact information (e.g. name, phone number) the user initially used to call the organization.
 
 5. After the emergency ends, a Genesys Cloud supervisor deactivates the `My Organization Evacuation Emergency Group` emergency group. New chats will pass through to the normal chatbot flow. Upon login, agents see the customer's callback information. The customer can be contacted and then the transaction can be completed normally.
 
@@ -60,22 +60,22 @@ This solution uses:
 3.  [A Genesys Cloud Emergency Group](https://help.mypurecloud.com/articles/add-an-emergency-group/).  
 4.  [Six Genesys Cloud Queues](https://help.mypurecloud.com/articles/create-queues-2/).
 
-The code for deploying this solution can be found in the `webmessage-emergency-group` directory. Users and queue assignment do not happen through Terraform scripts. Instead, they need to be done manually or through the [Genesys Cloud's SCIM](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/) integration.
+The code for deploying this solution can be found in the `webmessage-emergency-group` directory. Users and queue assignments do not happen through Terraform scripts. Instead, they need to be done manually or through the [Genesys Cloud's SCIM](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/) integration.
 
 ## Solution 2 - Web Messenger Failover to another Genesys Cloud region
-In the second scenario, we have two Genesys Cloud organizations with the primary web messenger chatbot deployed similarly to solution #1. There is also a second web messenger chatbot to be deployed in a Genesys Cloud organization in a different region. The following diagram illustrates this.
+In the second scenario, we have two Genesys Cloud organizations with the primary web messenger chatbot deployed similarly to solution #1. There is also a second web messenger chatbot deployed in a Genesys Cloud organization in a different region. The following diagram illustrates this.
 
 ![Warm Web Messenger Failover](/blueprint/images/webmessenger_warm_failover.png "Build a 'Warm' Web Messenger chatbot using callbacks")
 
 Following the declaration of an emergency, these actions are taken:
 
-1. The Web Messenger endpoint from the primary Genesys Cloud organization is manually failed to the secondary Genesys Cloud organization by a Genesys Cloud administrator. 
+1. The Web Messenger endpoint from the primary Genesys Cloud organization is manually failed to the secondary Genesys Cloud organization by the customer's website administrator. 
 
-2. In the secondary organization, there is a simple Genesys Cloud web messenger that captures the contact information for the customer and creates a Genesys Cloud callback associated with the `General Help` queue.
+2. In the secondary organization, there is a simple Genesys Cloud web messenger that captures the contact information for the customer and creates a Genesys Cloud callback associated with the `mychat-general-help` queue.
 
-3. A small group of agents log into the secondary organization to handle customer callbacks. In the secondary organization, it is important to assign the Genesys Cloud group `Emergency Group` to the `General Help` queue. Callbacks must be received by members of this group for agents to process the calls.
+3. A small group of agents logs into the secondary organization to handle customer callbacks. In the secondary organization, it is important to assign the Genesys Cloud group `Emergency Group` to the `mychat-general-help` queue. Callbacks must be received by members of this group for agents to process the calls.
 
-This solutions uses:
+This solution uses:
 
 1. [A Genesys Cloud Inbound Message Architect Flow](https://help.mypurecloud.com/articles/inbound-message-flows/).
 2. [Two Genesys Cloud Chatbot flows](https://help.mypurecloud.com/articles/call-bot-flow-action/).
@@ -83,7 +83,7 @@ This solutions uses:
 4. [A Genesys Cloud Groups overview](https://help.mypurecloud.com/articles/groups-overview/#:~:text=Genesys%20Cloud%20groups%20organize%20people,groups%20and%20skill%20expression%20groups "Opens the Groups overview article").
 5. [Genesys Cloud SCIM integration](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/ "Opens the About Genesys Cloud SCIM (Identity Management article")
 
-Web messenger, chatbot architect flow, queue configuration and the group configuration can be found in the `webmessage-fallback` directory. Setting up and configuring Genesys Cloud SCIM is the preferred mechanism for provisioning and assigning users to groups. This type of work can be done with CX as Code, but it is not recommended.  
+Web messenger, chatbot architect flow, queue configuration, and group configuration can be found in the `webmessage-fallback` directory. Setting up and configuring Genesys Cloud SCIM is the preferred mechanism for provisioning and assigning users to groups. This type of work can be done with CX as Code, but it is not recommended.  
 
 SCIM setup is not covered in this blueprint. For more information, see the [About Genesys Cloud SCIM (Identity Management](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/ "Opens the About Genesys Cloud SCIM (Identity Management article") documentation.
 
@@ -131,19 +131,19 @@ While the primary focus of this blueprint will be setting up a CI/CD pipeline, t
 
 ### Clone the GitHub repository
 
-Clone the GitHub repository [GenesysCloudBlueprints/dr-fallback-ivr](https://github.com/GenesysCloudBlueprints/dr-fallback-ivr "Opens the GitHub repository") to your local machine. The `dr-fallback-ivr/blueprint` folder contains solution-specific scripts and files in these subfolders:
-* `terraform-ivr`
-* `terraform-warm-ivr`
+Clone the GitHub repository [GenesysCloudBlueprints/dr-fallback-ivr](https://github.com/GenesysCloudBlueprints/dr-webmessaging-blueprint "Opens the GitHub repository") to your local machine. The `dr-webmessaging-blueprint/blueprint` folder contains solution-specific scripts and files in these subfolders:
+* `webmessage-emergency-group`
+* `webmessage-fallback`
 
 ### Define the Terraform Cloud configuration
 
 Terraform Cloud provides:
 
-*  **A backing store**. All configuration objects that Terraform manages maintain state information. While Terraform backing stores can be set up in many ways, by leveraging Terraform cloud, we let Terraform manage all infrastructure for us.
-*  **Lock management**. Terraform allows only one configuration instance to run at a time. This lock mechanism is built into Terraform Cloud and will fail a Terraform deployment if the configuration is already in progress.
-*  **An execution environment**. The Terraform Cloud runs your Terraform configuration remotely in one of their cloud environments.
+*  **A backing store**. A data file or a database that contains all of the configuration information managed by a Terraform script. While Terraform backing stores can be set up in many ways, by leveraging Terraform cloud, we let Terraform manage all the infrastructure needed to run a backing state for us.
+*  **Lock management**. Terraform allows only one configuration instance to run at a time. This locking mechanism is built into Terraform Cloud and will fail a Terraform deployment if the configuration is already in progress.
+*  **An execution environment**. The Terraform Cloud runs your Terraform configuration remotely in one of its cloud environments.
 
-In this blueprint, you need to establish two Terraform Cloud workspaces for your Terraform Web Messenger examples: one for production and one for fallback. You must also configure the Terraform and environment variables that these workspaces use, along with the Terraform cloud user token that GitHub uses to authenticate.
+In this blueprint, you need to establish two Terraform Cloud workspaces for your Terraform web messenger examples: one for production and one for fallback. You must also configure the Terraform and environment variables that these workspaces use, along with the Terraform cloud user token that GitHub uses to authenticate.
 
 For more information, see [Terraform Configurations in Terraform Cloud Workspaces](https://www.terraform.io/docs/cloud/workspaces/configurations.html "Goes to the Terraform Configurations in Terraform Cloud Workspaces") on the Terraform website.
 
@@ -152,7 +152,7 @@ For more information, see [Terraform Configurations in Terraform Cloud Workspace
 1.  Click **New Workspace**.
 2.  Select the CLI-driven workflow.
 3.  Enter a workspace name. For this blueprint, we use `prod-webmessenger`.  
-4.  Click **Create workspace** environment. When everything has been configured correctly, a **Waiting for configuration page** appears.  
+4.  Click **Create workspace** environment. When everything has been configured correctly, a **Waiting for Configuration page** appears.  
 5.  Click **Settings** > **General** and verify the following settings:
   * **Execution mode** - Remote
   * **Terraform Working Directory** - /blueprint/webmessenger-emergency-group
@@ -167,8 +167,8 @@ Terraform variables parameterize your scripts. Terraform providers usually use e
 
   * `environment` - Indicates the environment the code will deploy to. Several Genesys Cloud object names in this blueprint use the environment as part of their naming convention.
   * `prefix` - Prefix for many Genesys Cloud objects being created.  This is being done to avoid naming collisions.
-  * `integration_creds_client_id` - The Genesys Cloud client credential grant id that will be used to invoke the Genesys Cloud callback api.  This does not have to be the same client credential grant used to deploy your Terraform script.
-  * `integration_creds_client_secret` - The Genesys Cloud client credential grant secret that will be used to invoke the Genesys Cloud callback api.  This does not have to be the same client credential grant used to deploy your Terraform script.
+  * `integration_creds_client_id` - The Genesys Cloud client credential grant id that will be used to invoke the Genesys Cloud callback API.  This does not have to be the same client credential grant used to deploy your Terraform script.
+  * `integration_creds_client_secret` - The Genesys Cloud client credential grant secret that will be used to invoke the Genesys Cloud callback API.  This does not have to be the same client credential grant used to deploy your Terraform script.
  
 3. Define your environment variables:  
 
@@ -214,7 +214,7 @@ GitHub Actions require a Terraform Cloud user token so the Terraform CLI can aut
 
 GitHub Actions are the mechanism in which CI/CD pipelines are defined. Actions on GitHub usually consist of two parts:
 
-1.  **One or more workflow files** - The Github Action Workflow files define the sequence of steps in the CI/CD pipeline. Execution of the workflow triggers these steps. This blueprint contains a single workflow file called **deploy-flow.yaml** in the **.github/workflows** directory. This file contains instructions on how to install Terraform, deploy the Architect flow, and deploy the Genesys Cloud objects to the prod and prod-webmessenger-fallback organization.
+1.  **One or more workflow files** - The Github Action Workflow files define the sequence of steps in the CI/CD pipeline. Execution of the workflow triggers these steps. This blueprint contains a single workflow file called **deploy-flow.yaml** in the **.github/workflows** directory. This file contains instructions on how to install Terraform, deploy the Architect flow, and deploy the Genesys Cloud objects to the `prod` and `prod-webmessenger-fallback` organizations.
 
 
 2. Add your [Terraform cloud user token](#set-up-a-terraform-cloud-user-token "Goes to the Set up a Terraform cloud user token section"), which Terraform needs to authenticate with Terraform Cloud:
@@ -284,42 +284,39 @@ terraform apply --auto-approve
 ```
 ### Test the first scenario
 
-You can test the first webmessage chatbot initiating a chat with the organization running your chatbot. The [Genesys Cloud Developer portal](http://developer.genesys.cloud/) has a [web messenger testing harness](/devapps/web-chat-messenger). If you do not activate the `My Organization Evacuation Emergency Group` (created by the `blueprint/webmessage-emergency-group/main.tf` Terraform script), you are presented with a "happy path" in the chatbot. Take the following actions to test the "failure" path:
+You can test the first web message chatbot by initiating a chat with the organization running your chatbot. The [Genesys Cloud Developer portal](http://developer.genesys.cloud/) has a [web messenger testing harness](/devapps/web-chat-messenger). If you do not activate the `My Organization Evacuation Emergency Group` (created by the `blueprint/webmessage-emergency-group/main.tf` Terraform script), you are presented with a "happy path" in the chatbot. Take the following actions to test the "failure" path:
 
 1. Log into Genesys Cloud using an administrator account.
 2. Click Admin -> Routing -> Emergency Groups.
 3. Select the emergency group "My Organization Evacuation Emergency Group".
 4. Click the three vertical dots icon on the right of the "My Organization Evacuation Emergency Group" and select "Activate".
-5. Initiate a chat with your primary Genesys Cloud organization. You should see a message indicating an emergency event has occurred. You will be asked to leave a information to create a callback.
+5. Initiate a chat with your primary Genesys Cloud organization. You should see a message indicating an emergency event has occurred. You will be asked to leave information to create a callback.
 
 See the callback created.
 
 1. Log into Genesys Cloud using an administrator account.
 2. Click Admin -> Contact Center -> Queues.
-3. Locate the `General Help` queue and click the link for the queue name.
+3. Locate the `mychat-general-help` queue and click the link for the queue name.
 4. Assign yourself as a member of that queue.
-5. Click the slide bar in the upper right corner to go to the queue.
-
-You should now see the callback. 
-
+5. Click the slide bar in the upper right corner to go to the queue. You should now see the callback coming up as an incoming conversation.
 6. Accept the callback.
 
 
 ### Test the second scenario
 A second scenario involves organization-specific testing.  
 
-1. Fail over  the web messenger to the other "warm" Genesys Cloud organization.
+1. Fail over the web messenger to the other "warm" Genesys Cloud organization.
 2. Initiate a chat with the "warm" web messenger hosted in the "warm" organization.  
 
-A message should indicate that service has been interrupted and you should be asked to provide contact information that an agent can call you back on .
+A message should indicate that service has been interrupted and you should be asked to provide contact information that an agent can call you back on.
 
 Process the callback:
 
 1. Log into "Warm  Web Messenger" Genesys Cloud organization using an administrator account.
 2. Click Admin -> Contact Center -> Queues.
-3. Locate the `General Help` queue and click on its link.
+3. Locate the `mychat-general-help` queue and click on its link.
 4. Assign yourself as a member of that queue.
-5. Click the slide bar in the upper right corner to go to the queue.You should now see the callback. 
+5. Click the slide bar in the upper right corner to go to the queue. You should now see the callback. 
 
 You should now see the callback. 
 
@@ -332,4 +329,3 @@ You should now see the callback.
 * [Terraform Cloud](https://app.terraform.io/signup/account "Goes to the Terraform Cloud sign up page") on the Terraform Cloud website.
 * [Terraform Registry Documentation](https://registry.terraform.io/providers/MyPureCloud/genesyscloud/latest/docs "Goes to the Genesys Cloud provider page") on the Terraform website.
 * [dr-webmessaging-blueprint repository](https://github.com/GenesysCloudBlueprints/dr-webmessaging-blueprint "Goes to the dr-webmessaging-blueprint repository") in GitHub.
-

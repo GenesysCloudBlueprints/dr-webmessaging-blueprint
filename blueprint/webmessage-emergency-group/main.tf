@@ -28,7 +28,7 @@ module "webmessaging_deploy" {
 
 resource "genesyscloud_architect_emergencygroup" "site_evac_emergency_group" {
   name        = "My Organization Evacuation Emergency Group"
-  description = "Emergency Group to activate emergency ivr"
+  description = "Emergency Group to activate emergency web messenger"
 }
 
 module "genesys_cloud_public_api_integration" {
