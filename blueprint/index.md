@@ -1,5 +1,5 @@
 ---
-title: Build resiliency in your digital channels with Genesys Cloud web messenger, emergency groups and callbacks
+title: Build business continuity in your digital channels with Genesys Cloud web messenger, emergency groups, and callbacks
 author: john.carnell
 indextype: blueprint
 icon: blueprint
