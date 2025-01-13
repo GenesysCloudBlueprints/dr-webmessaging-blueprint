@@ -123,7 +123,7 @@ While the primary focus of this blueprint will be setting up a CI/CD pipeline, t
 1. [Clone the GitHub repository](#clone-the-github-repository "Goes to the Clone the GitHub repository section")
 2. [Define the Terraform Cloud configuration](#define-the-terraform-cloud-configuration "Goes to the Define the Terraform Cloud configuration section")
 3. [Define the GitHub Actions configuration](#define-the-github-actions-configuration "Goes to the Define the GitHub Actions configuration section")
-4. [Deploy the Genesys Cloud objects](#deploy-the-genesys-cloud-objects "Goes to the Deploy the Genesys Cloud objects section")
+4. [Deploy the Genesys Cloud objects with the Terraform CLI](#deploy-the-genesys-cloud-objects-with-the-terraform-cli "Goes to the Deploy the Genesys Cloud objects section")
 5. [Test the deployment](#test-the-deployment "Goes to the Test the deployment section")
 
 ### Clone the GitHub repository
@@ -279,7 +279,8 @@ Once these values are set, Terraform scripts can run from the command line using
 terraform init
 terraform apply --auto-approve
 ```
-### Test the first scenario
+### Test the deployment
+#### Test the first scenario
 
 You can test the first web message chatbot by initiating a chat with the organization running your chatbot. The [Genesys Cloud Developer portal](http://developer.genesys.cloud/) has a [web messenger testing harness](/devapps/web-chat-messenger). If you do not activate the `My Organization Evacuation Emergency Group` (created by the `blueprint/webmessage-emergency-group/main.tf` Terraform script), you are presented with a "happy path" in the chatbot. Take the following actions to test the "failure" path:
 
@@ -299,7 +300,7 @@ See the callback created.
 6. Accept the callback.
 
 
-### Test the second scenario
+#### Test the second scenario
 A second scenario involves organization-specific testing.  
 
 1. Fail over the web messenger to the other "warm" Genesys Cloud organization.
