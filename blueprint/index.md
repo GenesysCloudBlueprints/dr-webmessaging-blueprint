@@ -36,7 +36,7 @@ In the second scenario, the implementation team wants a standby web messenger ch
 
 The first solution demonstrates how Genesys Cloud web messenger architect flow, Genesys Cloud chatbots, emergency groups, and callbacks can be used to implement resilient web messenger solutions. All components and configurations are managed through CX as Code and deployed using the Terraform CLI or GitHub actions as part of CI/CD pipelines. This is captured in the following illustration:
 
-![Fallback Web Messenger Chatbot](/blueprint/images/webmessenger_fallback.png "Build a fallback Web Messenger chat bot using emergency groups and callbacks")
+![Fallback Web Messenger Chatbot](images/webmessenger_fallback.png "Build a fallback Web Messenger chat bot using emergency groups and callbacks")
 
 The following actions are taken in this scenario:
 
@@ -62,7 +62,7 @@ The code for deploying this solution can be found in the `webmessage-emergency-g
 ## Solution 2 - Web Messenger Failover to another Genesys Cloud region
 In the second scenario, we have two Genesys Cloud organizations with the primary web messenger chatbot deployed similarly to solution #1. There is also a second web messenger chatbot deployed in a Genesys Cloud organization in a different region. The following diagram illustrates this.
 
-![Warm Web Messenger Failover](/blueprint/images/webmessenger_warm_failover.png "Build a 'Warm' Web Messenger chatbot using callbacks")
+![Warm Web Messenger Failover](images/webmessenger_warm_failover.png "Build a 'Warm' Web Messenger chatbot using callbacks")
 
 Following the declaration of an emergency, these actions are taken:
 
