@@ -1,11 +1,4 @@
 terraform {
-  cloud {
-    organization = "thoughtmechanix"
-
-    workspaces {
-      name = "prod-webmessenger"
-    }
-  }
   required_providers {
     archive = {
       version = ">= 2.0"

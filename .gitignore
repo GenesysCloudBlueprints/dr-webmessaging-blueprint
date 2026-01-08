@@ -7,12 +7,16 @@
 
 # Crash log files
 crash.log
+crash.*.log
 
 # Ignore any .tfvars files that are generated automatically for each Terraform run. Most
 # .tfvars files are managed as part of configuration and so should be included in
 # version control.
 #
 # example.tfvars
+*.auto.tfvars
+*.auto.tfvars.json
+wm.auto.tfvars
 
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
@@ -27,7 +31,46 @@ override.tf.json
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
+*.tfplan
+*.tfplan.*
 
+# Lock files
+.terraform.lock.hcl
 
-#Do not include sdk_debug.log
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Backup provider files
+provider.tf.cloud
+provider.tf.backup
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# History files
+.history/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
 sdk_debug.log
+terraform.log
+
+# Temporary files
+*.tmp
+*.temp
